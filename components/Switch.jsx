@@ -19,11 +19,15 @@ export const Switch = React.memo(({
                     ${isSwitchTrue ? activeColor : inActiveColor}
                     ${isSwitchTrue ? "justify-end" : "justify-start"}
                     px-1 flex cursor-pointer items-center rounded-full
+                    border-2 ${isSwitchTrue ? "border-[var(--accent)]" : "border-(--border)"}
+                    transition-colors duration-200
                 `}
         >
             <motion.div
                 layout
-                className={`${circleClassName} bg-white rounded-full`}
+                className={`${circleClassName} ${
+                  isSwitchTrue ? "bg-white" : "bg-[var(--surface)]"
+                } rounded-full border ${isSwitchTrue ? "border-white" : "border-(--border)"}`}
                 transition={{ duration: 0.15, ease: "easeInOut", type: "just" }}
             ></motion.div>
         </div>
