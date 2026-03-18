@@ -129,6 +129,9 @@ export const BarcodeGenerator = () => {
         const { width, height } = getBarcodeSvgDimensions();
         if (!width || !height) return null;
 
+        const name = (nombreProductoParaMostrar || "").trim();
+        const hasName = name.length > 0;
+
         // Clone so we can safely enforce namespaces.
         const clone = svgEl.cloneNode(true);
         clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -159,9 +162,13 @@ export const BarcodeGenerator = () => {
                 MAX_DIMENSION / height
             );
 
+            const barcodeW = Math.ceil(width * scale);
+            const barcodeH = Math.ceil(height * scale);
+
+            // Canvas base size; we may increase height after we know how many lines fit.
             const canvas = document.createElement("canvas");
-            canvas.width = Math.ceil(width * scale);
-            canvas.height = Math.ceil(height * scale);
+            canvas.width = barcodeW;
+            canvas.height = Math.ceil(barcodeH + (hasName ? 140 * scale : 0));
 
             const ctx = canvas.getContext("2d");
             if (!ctx) return null;
@@ -170,8 +177,115 @@ export const BarcodeGenerator = () => {
             ctx.fillStyle = "#ffffff";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.setTransform(scale, 0, 0, scale, 0, 0);
-            ctx.drawImage(img, 0, 0, width, height);
+            const wrapText = (ctxEl, text, maxWidth, maxLines) => {
+                const words = text.split(/\s+/).filter(Boolean);
+                const lines = [];
+                let line = "";
+
+                const pushLine = (val) => {
+                    if (val.trim().length === 0) return;
+                    if (lines.length >= maxLines) return;
+                    lines.push(val.trim());
+                };
+
+                for (const word of words) {
+                    const test = line ? `${line} ${word}` : word;
+                    if (ctxEl.measureText(test).width <= maxWidth) {
+                        line = test;
+                        continue;
+                    }
+
+                    // If the word itself is too wide, break it by characters.
+                    if (ctxEl.measureText(word).width > maxWidth) {
+                        let part = "";
+                        for (const ch of word) {
+                            const testPart = part + ch;
+                            if (ctxEl.measureText(testPart).width <= maxWidth) {
+                                part = testPart;
+                            } else {
+                                pushLine(part);
+                                part = ch;
+                                if (lines.length >= maxLines) break;
+                            }
+                        }
+                        line = part;
+                        continue;
+                    }
+
+                    pushLine(line);
+                    line = word;
+                    if (lines.length >= maxLines) break;
+                }
+
+                pushLine(line);
+
+                if (lines.length > maxLines) return lines.slice(0, maxLines);
+                if (lines.length === maxLines && ctxEl.measureText(text).width > maxWidth) {
+                    const last = lines[maxLines - 1];
+                    // Add a small ellipsis; even if it slightly overflows, it stays readable.
+                    lines[maxLines - 1] = `${last}…`;
+                }
+
+                return lines;
+            };
+
+            let nameAreaH = 0;
+            let nameTopY = 0;
+            let nameLines = [];
+
+            if (hasName) {
+                const fontSize = 16 * scale;
+                const lineHeight = fontSize * 1.2;
+                const paddingX = 20 * scale;
+                const maxTextWidth = Math.max(1, barcodeW - paddingX * 2);
+
+                ctx.font = `600 ${fontSize}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+                nameLines = wrapText(ctx, name, maxTextWidth, 4);
+
+                const marginTop = 10 * scale;
+                const marginBottom = 10 * scale;
+                nameTopY = marginTop;
+                nameAreaH = Math.ceil(marginTop + nameLines.length * lineHeight + marginBottom);
+            }
+
+            // Resize canvas once we know exact name area height.
+            if (hasName) {
+                canvas.height = Math.ceil(barcodeH + nameAreaH);
+            } else {
+                canvas.height = barcodeH;
+            }
+
+            // Canvas resize clears drawings.
+            const ctx2 = canvas.getContext("2d");
+            if (!ctx2) return null;
+
+            ctx2.fillStyle = "#ffffff";
+            ctx2.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw name centered above barcode.
+            if (hasName) {
+                const fontSize = 16 * scale;
+                const lineHeight = fontSize * 1.2;
+                const paddingX = 20 * scale;
+                const maxTextWidth = Math.max(1, barcodeW - paddingX * 2);
+
+                ctx2.font = `600 ${fontSize}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+                ctx2.fillStyle = "#000000";
+                ctx2.textBaseline = "top";
+
+                for (let i = 0; i < nameLines.length; i++) {
+                    const lineText = nameLines[i];
+                    const lineW = ctx2.measureText(lineText).width;
+                    const x = Math.max(paddingX, (barcodeW - lineW) / 2);
+                    const y = nameTopY + i * lineHeight;
+                    // Prevent drawing outside the allotted area.
+                    if (x < paddingX + maxTextWidth) ctx2.fillText(lineText, x, y);
+                }
+            }
+
+            // Draw barcode SVG rendered image below the name block.
+            const barcodeOffsetY = hasName ? nameAreaH : 0;
+            ctx2.drawImage(img, 0, barcodeOffsetY, barcodeW, barcodeH);
 
             const pngBlob = await new Promise((resolve) => {
                 canvas.toBlob((blob) => resolve(blob), "image/png", 1);
@@ -181,7 +295,7 @@ export const BarcodeGenerator = () => {
         } finally {
             URL.revokeObjectURL(url);
         }
-    }, [getBarcodeSvgDimensions]);
+    }, [getBarcodeSvgDimensions, nombreProductoParaMostrar]);
 
     const buildBarcodeFilename = React.useCallback(() => {
         const safe = String(nuevoCodigoBarra ?? "").replace(/[^0-9A-Za-z_-]+/g, "_");
