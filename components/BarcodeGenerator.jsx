@@ -11,6 +11,7 @@ import { generateBarcodeFromName } from "@/utils/generateBarcodeFromName";
 export const BarcodeGenerator = () => {
     const [isNumeroDeBarra, setNumeroDeBarra] = React.useState(false);
     const [nombreProducto, setNombreProducto] = React.useState("");
+    const [nombreProductoParaMostrar, setNombreProductoParaMostrar] = React.useState("");
     const barcodeRef = React.useRef(null);
     const [nuevoCodigoBarra, setNuevoCodigoBarra] = React.useState("");
     const [warningMessage, setWarningMessage] = React.useState("");
@@ -67,6 +68,7 @@ export const BarcodeGenerator = () => {
             if (value !== "") {
                 setWarningMessage("");
                 setNuevoCodigoBarra(generateBarcodeFromName(value));
+                setNombreProductoParaMostrar(value);
             } else {
                 setWarningMessage("Debes ingresar el nombre del producto para generar su codigo de barra");
             }
@@ -83,6 +85,7 @@ export const BarcodeGenerator = () => {
 
             setWarningMessage("");
             setNuevoCodigoBarra(value);
+            setNombreProductoParaMostrar("");
         }
     };
 
@@ -407,7 +410,14 @@ export const BarcodeGenerator = () => {
                             </AnimatePresence>
 
                             <div className="mt-5 rounded-xl bg-white border border-[#e5e7eb] p-4 flex items-center justify-center">
-                                <svg ref={barcodeRef}></svg>
+                                <div className="w-full flex flex-col items-center justify-center gap-2">
+                                    {nombreProductoParaMostrar && (
+                                        <p className="text-sm font-semibold text-black text-center wrap-break-word">
+                                            {nombreProductoParaMostrar}
+                                        </p>
+                                    )}
+                                    <svg ref={barcodeRef}></svg>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
