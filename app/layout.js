@@ -43,6 +43,9 @@ export const metadata = {
     description:
       "Genera códigos de barras CODE128 a partir de nombres o números. Copia la imagen o descárgala en PNG.",
   },
+};
+
+export const viewport = {
   themeColor: "#22c55e",
 };
 
@@ -64,7 +67,15 @@ export default function GeneradorCodigosDeBarraLayout({ children }) {
         </Script>
       </head>
       <body className={poppins.className}>
-        {children}
+        <div className="min-h-screen flex flex-col">
+          <main className="flex-1 flex items-center justify-center">{children}</main>
+          <footer className="w-full bg-(--accent) text-black">
+            <div className="w-full px-6 py-3 flex items-center justify-between text-sm font-medium">
+              <span>DAIEGO SYS</span>
+              <span>DAIEGO LLC &copy; 2026</span>
+            </div>
+          </footer>
+        </div>
       </body>
     </html>
   );

@@ -258,7 +258,7 @@ export const BarcodeGenerator = () => {
     return (
         <form
             onSubmit={e => onGenerateBarcode(e)}
-            className="min-h-screen p-6 flex flex-col items-center justify-center gap-6 w-full xl:flex-row xl:items-start xl:gap-10"
+            className="p-6 flex flex-col items-center justify-center gap-6 w-full max-w-6xl xl:flex-row xl:items-start xl:justify-center xl:gap-10"
         >
             <div className="w-full md:w-120 rounded-2xl border border-(--border) bg-(--surface) p-6">
                 <header className="flex items-start justify-between gap-4">
