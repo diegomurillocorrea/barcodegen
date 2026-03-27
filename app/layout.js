@@ -1,4 +1,5 @@
 import "./globals.css";
+import Image from "next/image";
 import Script from "next/script";
 import { Poppins } from "next/font/google";
 
@@ -71,7 +72,13 @@ export default function GeneradorCodigosDeBarraLayout({ children }) {
           <main className="flex-1 flex items-center justify-center">{children}</main>
           <footer className="w-full bg-(--accent) text-black">
             <div className="w-full px-6 py-3 flex items-center justify-between text-sm font-medium">
-              <span>DAIEGO SYS</span>
+              <Image
+                src="/DAIEGO.png"
+                alt="DAIEGO"
+                width={110}
+                height={36}
+                className="h-8 w-auto object-contain"
+              />
               <span>DAIEGO LLC &copy; 2026</span>
             </div>
           </footer>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React from "react";
 import JsBarcode from 'jsbarcode';
 import { AnimatePresence, motion } from "framer-motion";
@@ -379,15 +380,24 @@ export const BarcodeGenerator = () => {
         >
             <div className="w-full md:w-120 rounded-2xl border border-(--border) bg-(--surface) p-6">
                 <header className="flex items-start justify-between gap-4">
-                    <h1 className="font-semibold text-2xl text-left">
-                        DAIEGO BarCode Generator
+                    <h1 className="font-semibold text-2xl text-left flex items-center gap-2">
+                        <Image
+                            src="/DAIEGO.png"
+                            alt="DAIEGO"
+                            width={120}
+                            height={40}
+                            className="h-10 w-auto object-contain"
+                        />
+                        <span>
+                            BarCode <span className="text-(--accent)">Generator</span>
+                        </span>
                     </h1>
                     <ThemeToggle />
                 </header>
 
                 <div className="mt-4 flex items-start justify-between gap-4">
-                    <div>
-                        <p className="font-light text-xs text-(--muted)">Codigo existente</p>
+                    <div className="border-l-2 border-(--accent) pl-3">
+                        <p className="font-medium text-xs text-(--accent)">Codigo existente</p>
                         <p className="text-[11px] text-(--muted) mt-1">
                             {isNumeroDeBarra
                                 ? "Modo número: valida que sea numérico."
@@ -421,7 +431,7 @@ export const BarcodeGenerator = () => {
                             if (warningMessage) setWarningMessage("");
                         }}
                     />
-                    <p className="text-[11px] text-(--muted)">{helperText}</p>
+                    <p className="text-[11px] text-(--accent)">{helperText}</p>
 
                     <p
                         className="min-h-5 text-sm text-(--danger) font-light"

@@ -18,14 +18,14 @@
   --input-bg: #ffffff;
   --input-text: #0b0b0f;
 
-  --accent: #22c55e;
-  --accent-hover: #16a34a;
+  --accent: #00bc7d;
+  --accent-hover: #00a56f;
 
   --danger: #ef4444;
 
-  --btn-bg: var(--accent);
+  --btn-bg: #0b0b0f;
   --btn-text: #ffffff;
-  --btn-hover-bg: var(--accent-hover);
+  --btn-hover-bg: #1f2937;
   --btn-hover-text: #ffffff;
 }
 
